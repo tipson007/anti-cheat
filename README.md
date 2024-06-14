@@ -16,6 +16,7 @@ Open Command Prompt and run the following commands to install necessary Python m
 ```bash
 pip install psutil pywin32 pyudev
 ```
+make sure to comment out this module : import win32com.client || when running this on mac
 
 ### 3. Update Email Configuration
 Open the script (`security_check.py`) in a text editor and update the following lines with your email details:
@@ -39,6 +40,9 @@ TO_EMAIL_ADDRESS = "recipient_email@gmail.com"
 Use the `cd` command to navigate to the directory where your script is located:
 ```cmd
 cd path\to\script\directory
+```
+```cmd
+cd C:\Users\YourUsername\Documents  #windows
 ```
 Replace `path\to\script\directory` with the actual path to the directory containing your script.
 
