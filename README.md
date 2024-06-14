@@ -1,59 +1,111 @@
+#anti-cheat
+---
 
-### Pre-requisites:
-1. **Python Installation:**
-   - Ensure Python is installed on your Windows PC. You can download Python from [python.org](https://www.python.org/downloads/) and follow the installation instructions.
+# Security Check Script
 
-2. **Required Python Modules:**
-   - Install necessary Python modules if they are not already installed:
-     ```bash
-     pip install psutil pywin32
-     ```
+This script performs security checks on a PC, searching for known cheat processes, cheat files, DS4Windows/DS4, macros, and connected USB devices. It then sends an email notification with the results.
 
-3. **Script Configuration:**
-   - Update the script with your Gmail credentials (`EMAIL_ADDRESS`, `EMAIL_PASSWORD`, `TO_EMAIL_ADDRESS`) for sending email notifications.
+## Prerequisites
 
-### Execution Steps:
+### 1. Install Python
+1. Download Python from [python.org](https://www.python.org/downloads/).
+2. Run the installer and follow the instructions. Ensure you check the option to "Add Python to PATH" during installation.
 
-1. **Open a Command Prompt (cmd):**
-   - Press `Win + R`, type `cmd`, and press Enter to open Command Prompt.
+### 2. Install Required Python Modules
+Open Command Prompt and run the following commands to install necessary Python modules:
+```bash
+pip install psutil pywin32 pyudev
+```
 
-2. **Navigate to Script Directory:**
-   - Use `cd` command to navigate to the directory where your script (`security_check.py`) is located.
-     ```cmd
-     cd path\to\script\directory
-     ```
+### 3. Update Email Configuration
+Open the script (`security_check.py`) in a text editor and update the following lines with your email details:
+```python
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+EMAIL_ADDRESS = "your_email@gmail.com"
+EMAIL_PASSWORD = "your_app_password"  # Use an App Password if 2-Step Verification is enabled
+TO_EMAIL_ADDRESS = "recipient_email@gmail.com"
+```
+- Replace `your_email@gmail.com` with your Gmail address.
+- Replace `your_app_password` with your Gmail App Password (recommended if you have 2-Step Verification enabled).
+- Replace `recipient_email@gmail.com` with the email address where you want to receive notifications.
 
-3. **Run the Script:**
-   - Execute the Python script using the following command:
-     ```cmd
-     python security_check.py
-     ```
-   - This command will start the script execution.
+## Running the Script on Windows
 
-4. **Monitor Script Output:**
-   - The script will output messages to the Command Prompt window indicating its progress and findings:
-     - Checking for suspicious cheat files...
-     - Checking for known cheat processes...
-     - Checking for DS4Windows and DS4...
-     - Checking for macro yy...
+### 4. Open Command Prompt
+1. Press `Win + R`, type `cmd`, and press Enter to open Command Prompt.
 
-5. **Email Notification (if configured):**
-   - If the script finds any suspicious activities (cheat files, processes, DS4Windows/DS4, macro yy), it will attempt to send an email notification to the specified `TO_EMAIL_ADDRESS`.
+### 5. Navigate to Script Directory
+Use the `cd` command to navigate to the directory where your script is located:
+```cmd
+cd path\to\script\directory
+```
+Replace `path\to\script\directory` with the actual path to the directory containing your script.
 
-6. **Script Completion:**
-   - Once the script completes its checks, it will print a summary of its findings in the Command Prompt window.
-   - If configured, it will also print "Email sent successfully." indicating that the email notification was sent.
+### 6. Run the Script
+Execute the script by typing:
+```cmd
+python security_check.py
+```
+This will start the script execution.
 
-### Ending the Test:
+## Monitoring the Output
 
-- **Close Command Prompt:** Once you've reviewed the script output, you can close the Command Prompt window by typing `exit` and pressing Enter, or clicking the close button on the window.
+### 7. Check Command Prompt Output
+The script will output messages in the Command Prompt window indicating its progress and findings:
+- Checking for suspicious cheat files...
+- Checking for known cheat processes...
+- Checking for DS4Windows and DS4...
+- Checking for macro yy...
+- Checking for connected USB devices...
 
-- **Review Results:** Check the Command Prompt output for any suspicious activities detected by the script.
+### 8. Email Notification
+If the script detects any suspicious activities, it will send an email to the specified `TO_EMAIL_ADDRESS`. Look for a message indicating "Email sent successfully."
 
-- **Modify and Rerun (if needed):** If you want to modify the script or its configuration (e.g., add more checks, change email settings), edit the script accordingly and rerun it using the steps above.
+## Ending the Test
 
-### Note:
-- Ensure that your Windows PC is connected to the internet and has Python installed with required modules (`psutil` and `pywin32`).
-- Make sure to handle email credentials (`EMAIL_ADDRESS`, `EMAIL_PASSWORD`) securely and in accordance with your email provider's security guidelines (e.g., using App Passwords for Gmail if 2-Step Verification is enabled).
+### 9. Close Command Prompt
+Once you've reviewed the script output, you can close the Command Prompt window by typing `exit` and pressing Enter, or clicking the close button on the window.
 
-By following these steps, you can effectively run and test the script on a Windows PC to monitor for suspicious activities related to cheat files, processes, and specific applications like DS4Windows and DS4.
+### 10. Review Results
+Check the Command Prompt output for any suspicious activities detected by the script. Also, check your email inbox for the notification email if the script found any issues.
+
+### 11. Modify and Rerun (if needed)
+If you need to modify the script or its configuration (e.g., add more checks, change email settings), edit the script accordingly and rerun it using the steps above.
+
+---
+
+## Detailed Script Explanation
+
+The script performs the following checks:
+
+1. **Get Current User**: Retrieves the username of the current user.
+2. **Check Suspicious Files**: Searches common directories for files with known cheat or anti-recoil names/extensions.
+3. **Check Known Cheat Processes**: Uses `psutil` to check running processes against a list of known cheat processes.
+4. **Check USB Devices**: Lists connected USB devices (works across all platforms).
+5. **Send Email**: Sends an email with the results of the checks.
+
+## Example Output
+
+```plaintext
+Current User: your_username
+
+Checking for suspicious cheat files...
+No suspicious cheat files found.
+
+Checking for known cheat processes...
+No known cheat processes found.
+
+Checking for connected USB devices...
+No connected USB devices found.
+
+Email sent successfully.
+```
+
+## Notes for Other Platforms
+
+### macOS and Linux
+The script is designed to work on macOS and Linux with the following considerations:
+- **macOS**: Uses `system_profiler` to check USB devices.
+- **Linux**: Uses `pyudev` to check USB devices.
+- Install the required modules using `pip install psutil pyudev`.
