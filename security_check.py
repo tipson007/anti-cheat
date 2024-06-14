@@ -27,9 +27,8 @@ known_cheat_files = [
     "ds4windows.exe", "ds4.exe"
 ]
 
-known_anti_recoil_names = [
-    "anti-recoil.exe", "recoil-helper.exe", "anti-recoil",
-    "ds4windows.exe", "ds4.exe"
+known_cheat_extensions = [
+    ".dylib", ".cpg"
 ]
 
 def get_current_user():
@@ -39,11 +38,11 @@ def check_suspicious_files():
     suspicious_files = []
 
     if platform.system() == "Windows":
-        common_dirs = ["C:\\Program Files", "C:\\Program Files (x86)", "C:\\Users\\Public"]
+        common_dirs = ["C:\\Program Files", "C:\\Program Files (x86)", "C:\\Users\\Public", "C:\\"]
     elif platform.system() == "Darwin":
-        common_dirs = ["/Applications", "/Users/Shared"]
+        common_dirs = ["/Applications", "/Users/Shared", "/"]
     elif platform.system() == "Linux":
-        common_dirs = ["/usr/bin", "/usr/local/bin", "/opt"]
+        common_dirs = ["/usr/bin", "/usr/local/bin", "/opt", "/"]
     else:
         print(f"Unsupported operating system: {platform.system()}")
         return suspicious_files
@@ -51,7 +50,7 @@ def check_suspicious_files():
     for dir in common_dirs:
         for root, dirs, files in os.walk(dir):
             for file in files:
-                if any(file.endswith(ext) or any(name in file.lower() for name in known_cheat_files) for ext in known_cheat_files):
+                if any(file.lower().endswith(ext) for ext in known_cheat_extensions) or any(name in file.lower() for name in known_cheat_files):
                     suspicious_files.append(os.path.join(root, file))
 
     return suspicious_files
@@ -66,25 +65,28 @@ def check_known_cheat_processes():
 def check_usb_devices_windows():
     usb_devices = []
     try:
-        wmi = win32com.client.GetObject("winmgmts:")
-        for usb in wmi.InstancesOf("Win32_USBHub"):
-            usb_device_info = f"Description: {usb.Description}\n"
-            usb_device_info += f"Device ID: {usb.DeviceID}\n"
-            usb_device_info += f"Status: {usb.Status}\n"
-            usb_device_info += f"PNP Device ID: {usb.PNPDeviceID}\n"
-            try:
-                usb_device_info += f"Product ID: {usb.Properties_('DeviceID').Value.split('_')[-1]}\n"
-                usb_device_info += f"Vendor ID: {usb.Properties_('DeviceID').Value.split('_')[-2]}\n"
-            except Exception as e:
-                usb_device_info += f"Error retrieving Product ID and Vendor ID: {e}\n"
-            usb_device_info += f"USB Hub: {usb.Description}\n"
-            usb_device_info += f"Host Controller Driver: {usb.Properties_('Name').Value}\n"
-
-            usb_devices.append(usb_device_info)
+        cmd = 'Get-WmiObject Win32_USBHub | Select-Object DeviceID, Description, Manufacturer, Status, PNPDeviceID'
+        result = subprocess.run(['powershell', '-Command', cmd], capture_output=True, text=True)
+        devices = result.stdout.strip().split('\n\n')
+        for device in devices:
+            device_info = {}
+            for line in device.split('\n'):
+                if ':' in line:
+                    key, value = map(str.strip, line.split(':', 1))
+                    device_info[key] = value
+            if device_info:
+                device_details = (
+                    f"Description: {device_info.get('Description', 'N/A')}\n"
+                    f"Manufacturer: {device_info.get('Manufacturer', 'N/A')}\n"
+                    f"Device ID: {device_info.get('DeviceID', 'N/A')}\n"
+                    f"Status: {device_info.get('Status', 'N/A')}\n"
+                    f"PNP Device ID: {device_info.get('PNPDeviceID', 'N/A')}\n"
+                )
+                usb_devices.append(device_details)
     except Exception as e:
         print(f"Error checking USB devices on Windows: {e}")
     return usb_devices
-
+    
 def check_usb_devices_macos():
     usb_devices = []
     try:
