@@ -68,7 +68,19 @@ def check_usb_devices_windows():
     try:
         wmi = win32com.client.GetObject("winmgmts:")
         for usb in wmi.InstancesOf("Win32_USBHub"):
-            usb_devices.append(f"Device ID: {usb.DeviceID}, Description: {usb.Description}")
+            usb_device_info = f"Description: {usb.Description}\n"
+            usb_device_info += f"Device ID: {usb.DeviceID}\n"
+            usb_device_info += f"Status: {usb.Status}\n"
+            usb_device_info += f"PNP Device ID: {usb.PNPDeviceID}\n"
+            try:
+                usb_device_info += f"Product ID: {usb.Properties_('DeviceID').Value.split('_')[-1]}\n"
+                usb_device_info += f"Vendor ID: {usb.Properties_('DeviceID').Value.split('_')[-2]}\n"
+            except Exception as e:
+                usb_device_info += f"Error retrieving Product ID and Vendor ID: {e}\n"
+            usb_device_info += f"USB Hub: {usb.Description}\n"
+            usb_device_info += f"Host Controller Driver: {usb.Properties_('Name').Value}\n"
+
+            usb_devices.append(usb_device_info)
     except Exception as e:
         print(f"Error checking USB devices on Windows: {e}")
     return usb_devices
