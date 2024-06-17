@@ -28,7 +28,7 @@ known_cheat_files = [
 ]
 
 known_cheat_extensions = [
-    ".dylib", ".cpg"
+    ".dylib", ".cpg", ".cb", ".cpp"
 ]
 
 def get_current_user():
@@ -51,7 +51,14 @@ def check_suspicious_files():
         for root, dirs, files in os.walk(dir):
             for file in files:
                 if any(file.lower().endswith(ext) for ext in known_cheat_extensions) or any(name in file.lower() for name in known_cheat_files):
-                    suspicious_files.append(os.path.join(root, file))
+                    file_path = os.path.join(root, file)
+                    suspicious_files.append(file_path)
+                    if os.path.getsize(file_path) <= MAX_FILE_SIZE:
+                        with open(file_path, 'r', errors='ignore') as f:
+                            file_content = f.read()
+                            suspicious_files.append(f"Content of {file_path}:\n{file_content}")
+                    else:
+                        suspicious_files.append(f"File {file_path} is too large to display.")
 
     return suspicious_files
 
