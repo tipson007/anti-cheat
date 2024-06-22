@@ -1,6 +1,9 @@
 #anti-cheat
 ---
-
+#Simple search for .cpg extension in cmd
+```bash
+dir C:\*.cpg /S /B
+```
 # Security Check Script
 
 This script performs security checks on a PC, searching for known cheat processes, cheat files, DS4Windows/DS4, macros, and connected USB devices. It then sends an email notification with the results.
